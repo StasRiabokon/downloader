@@ -5,32 +5,14 @@ import java.nio.channels.ReadableByteChannel;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
 public class Downloader {
     public static LinkedHashMap<String, String> map;
     private static final Object lock = new Object();
-    private static String pathToSave;
+    public static String pathToSave;
 
-    public static void main(String[] args) throws IOException {
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
-        System.out.println("Enter the count of threads");
-        int n = Integer.parseInt(bufferedReader.readLine());
-        System.out.println("Enter the path to file with links");
-        String f = bufferedReader.readLine();
-        System.out.println("Enter output directory");
-        pathToSave = bufferedReader.readLine();
 
-        map = readLinksFromFile(f);
 
-        for (int i = 0; i < n; i++) {
-            Multidownloading multidownloading = new Multidownloading();
-            Thread thread = new Thread(multidownloading);
-            thread.start();
-        }
-
-    }
-
-    private static LinkedHashMap<String, String> readLinksFromFile(String path) throws IOException {
+    public static LinkedHashMap<String, String> readLinksFromFile(String path) throws IOException {
         LinkedHashMap<String, String> stringLinkedHashMap = new LinkedHashMap<>();
         String[] arr;
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(path)))) {
