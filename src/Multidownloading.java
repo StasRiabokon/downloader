@@ -10,9 +10,8 @@ public class Multidownloading implements Runnable {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            System.out.println("loading ended");
+
         }
-        System.out.println("thread completed");
 
     }
 }

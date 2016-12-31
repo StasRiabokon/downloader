@@ -24,10 +24,14 @@ import java.nio.channels.ReadableByteChannel;
 
 public class GUI extends Application {
 
+
     private static File selectedDir;
     private static File selectedFile;
     private static TextField urlTextField;
     private static TextField nameTextField;
+    private static Label currentDirToSave;
+    private static TextField countThreadsTextField;
+
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -42,11 +46,11 @@ public class GUI extends Application {
         Label curDirLabel = new Label("Dir to save:");
         Label curFile = new Label("File with links:");
         Label curFileWithLinksLabel = new Label("Not selected");
-        Label currentDirToSave = new Label(System.getProperty("user.dir"));
+        currentDirToSave = new Label(System.getProperty("user.dir"));
         Label countThreadsLabel = new Label("Count of threads:");
 
 
-        TextField countThreadsTextField = new TextField();
+        countThreadsTextField = new TextField();
         countThreadsTextField.setPromptText("1, 2, 3...");
         urlTextField = new TextField();
         urlTextField.setPromptText("http://www.example.com/file.txt");
@@ -108,8 +112,14 @@ public class GUI extends Application {
         downloadFromFileButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                if(countThreadsTextField.getText().isEmpty()){
+                if (countThreadsTextField.getText().isEmpty()) {
                     errThreadCount();
+                    return;
+                }
+                if (!isDigitMoreZero()) {
+                    return;
+                }
+                if (curFileWithLinksLabel.getText().equals("Not selected")) {
                     return;
                 }
                 try {
@@ -140,7 +150,7 @@ public class GUI extends Application {
         gridPane.add(chooseFileWithLinks, 2, 2);
         gridPane.add(countThreadsLabel, 0, 3);
         gridPane.add(countThreadsTextField, 1, 3);
-        gridPane.add(downloadFromFileButton,2,3);
+        gridPane.add(downloadFromFileButton, 2, 3);
 
 
         gridPane.add(new Label(""), 0, 4);
@@ -174,6 +184,16 @@ public class GUI extends Application {
         return erroralert1;
     }
 
+    public static Alert errBadURL() {
+        Alert erroralert1 = new Alert(Alert.AlertType.ERROR);
+        erroralert1.setTitle("Bad URL");
+        erroralert1.setHeaderText(null);
+        erroralert1.setContentText("URL is not correct");
+        erroralert1.initStyle(StageStyle.UTILITY);
+        erroralert1.showAndWait();
+        return erroralert1;
+    }
+
     private Alert errName() {
         Alert erroralert1 = new Alert(Alert.AlertType.ERROR);
         erroralert1.setTitle("Empty field");
@@ -194,14 +214,35 @@ public class GUI extends Application {
         return erroralert1;
     }
 
+    private static boolean isDigitMoreZero() {
+        try {
+            if (Integer.parseInt(countThreadsTextField.getText()) > 0) {
+                return true;
+            } else return false;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static Label getCurrentDirToSave() {
+        return currentDirToSave;
+    }
+
     private static void download() throws IOException {
 
 
         String stringUrl = urlTextField.getText();
         String filename = nameTextField.getText();
-        URL url = new URL(stringUrl);
+        URL url = null;
+        try {
+            url = new URL(stringUrl);
+        } catch (Exception e) {
+            errBadURL();
+            return;
+        }
+        String path = GUI.getCurrentDirToSave().getText();
         try (ReadableByteChannel byteChannel = Channels.newChannel(url.openStream())) {
-            try (FileOutputStream outputStream = new FileOutputStream(new File(selectedDir + filename))) {
+            try (FileOutputStream outputStream = new FileOutputStream(new File(path + File.separator + filename))) {
                 outputStream.getChannel().transferFrom(byteChannel, 0, Long.MAX_VALUE);
 
             }

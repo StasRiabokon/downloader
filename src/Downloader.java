@@ -5,11 +5,11 @@ import java.nio.channels.ReadableByteChannel;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
 public class Downloader {
     public static LinkedHashMap<String, String> map;
     private static final Object lock = new Object();
     public static String pathToSave;
-
 
 
     public static LinkedHashMap<String, String> readLinksFromFile(String path) throws IOException {
@@ -43,12 +43,18 @@ public class Downloader {
             if (map.isEmpty()) return;
             arr = getStringUrlAndFileName();
         }
-
+        String path = GUI.getCurrentDirToSave().getText();
         String stringUrl = arr[1];
         String filename = arr[0];
-        URL url = new URL(stringUrl);
+        URL url = null;
+        try {
+            url = new URL(stringUrl);
+        } catch (Exception e) {
+            GUI.errBadURL();
+            return;
+        }
         try (ReadableByteChannel byteChannel = Channels.newChannel(url.openStream())) {
-            try (FileOutputStream outputStream = new FileOutputStream(new File(pathToSave + filename))) {
+            try (FileOutputStream outputStream = new FileOutputStream(new File(path + File.separator + filename))) {
                 outputStream.getChannel().transferFrom(byteChannel, 0, Long.MAX_VALUE);
 
             }
