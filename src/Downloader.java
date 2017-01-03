@@ -1,4 +1,5 @@
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
@@ -50,8 +51,8 @@ public class Downloader {
         try {
             url = new URL(stringUrl);
         } catch (Exception e) {
-            GUI.errBadURL();
-            return;
+            throw new MalformedURLException();
+            // TODO: 03.01.2017
         }
         try (ReadableByteChannel byteChannel = Channels.newChannel(url.openStream())) {
             try (FileOutputStream outputStream = new FileOutputStream(new File(path + File.separator + filename))) {

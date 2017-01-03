@@ -18,6 +18,7 @@ import javafx.stage.StageStyle;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
@@ -75,6 +76,8 @@ public class GUI extends Application {
                     public void run() {
                         try {
                             download();
+                        } catch (MalformedURLException ee) {
+                            // TODO: 03.01.2017  
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -116,12 +119,16 @@ public class GUI extends Application {
                     errThreadCount();
                     return;
                 }
-                if (!isDigitMoreZero()) {
-                    return;
-                }
                 if (curFileWithLinksLabel.getText().equals("Not selected")) {
+                    errFileNotSelected();
                     return;
                 }
+                if (!isDigitMoreZero()) {
+                    errCountNumber();
+                    countThreadsTextField.clear();
+                    return;
+                }
+
                 try {
                     Downloader.map = Downloader.readLinksFromFile(selectedFile + "");
                 } catch (IOException e) {
@@ -169,8 +176,9 @@ public class GUI extends Application {
         col3.setPrefWidth(100);
         gridPane.getColumnConstraints().addAll(col1, col2, col3);
 
-        Scene scene = new Scene(vBox, 510, 300);
+        Scene scene = new Scene(vBox, 510, 250);
         primaryStage.setScene(scene);
+        primaryStage.setResizable(false);
         primaryStage.show();
     }
 
@@ -214,6 +222,26 @@ public class GUI extends Application {
         return erroralert1;
     }
 
+    private Alert errFileNotSelected() {
+        Alert erroralert1 = new Alert(Alert.AlertType.ERROR);
+        erroralert1.setTitle("Error");
+        erroralert1.setHeaderText(null);
+        erroralert1.setContentText("File with links isn't selected");
+        erroralert1.initStyle(StageStyle.UTILITY);
+        erroralert1.showAndWait();
+        return erroralert1;
+    }
+
+    private Alert errCountNumber() {
+        Alert erroralert1 = new Alert(Alert.AlertType.ERROR);
+        erroralert1.setTitle("Error");
+        erroralert1.setHeaderText(null);
+        erroralert1.setContentText("Incorrect number");
+        erroralert1.initStyle(StageStyle.UTILITY);
+        erroralert1.showAndWait();
+        return erroralert1;
+    }
+
     private static boolean isDigitMoreZero() {
         try {
             if (Integer.parseInt(countThreadsTextField.getText()) > 0) {
@@ -237,8 +265,7 @@ public class GUI extends Application {
         try {
             url = new URL(stringUrl);
         } catch (Exception e) {
-            errBadURL();
-            return;
+            throw new MalformedURLException();
         }
         String path = GUI.getCurrentDirToSave().getText();
         try (ReadableByteChannel byteChannel = Channels.newChannel(url.openStream())) {
